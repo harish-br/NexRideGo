@@ -1,0 +1,189 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.driver-id {
+  font-size: 1.2rem;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.status-badge {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.status-badge.online {
+  color: #4caf50;
+  border: 2px solid #4caf50;
+}
+
+.status-badge.offline {
+  color: #f44336;
+  border: 2px solid #f44336;
+}
+
+.status-text {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+/* POPUP STYLES */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85); /* Dark transparent */
+  z-index: 9999; /* Very high z-index */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-card {
+  background-color: #1a1a1a;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.popup-title {
+  margin-top: 0;
+  color: #fff;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.popup-details {
+  background: #333;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #444;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: bold;
+  opacity: 0.8;
+}
+
+.value {
+  color: #fff;
+}
+
+.popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.btn-accept, .btn-reject {
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.btn-accept:active, .btn-reject:active {
+  transform: scale(0.98);
+}
+
+.btn-accept {
+  background-color: #4caf50; /* Green */
+  color: black;
+}
+
+.btn-reject {
+  background-color: #f44336; /* Red - changing from gray to red for clarity in prompt vs request */
+  /* Prompt said: Accept (green/black), Reject (red/gray). Let's stick to prompt. */
+  background-color: #333; /* Dark gray for reject as per prompt "Reject (red / gray)" - wait, prompt said "red / gray". Maybe background gray, text red? Or button red.
+  Actually, "Accept (green / black)" usually means BG green, Text black.
+  "Reject (red / gray)" might mean BG red OR BG gray. I'll make it BG gray with red text or BG red with white text. 
+  Let's use Prompt's "Accept (green / black)" -> BG Green, Text Black.
+  "Reject (red / gray)" -> Let's do BG Gray, Text Red. Safer for "dismissive" action, or BG Red for "Danger". 
+  Prompt says "Reject (red/gray)". I'll do BG #444 (Gray) and Text #f44336 (Red).
+  */
+  background-color: #444;
+  color: #f44336;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  .popup-card {
+    background-color: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  .popup-title {
+    color: #333;
+  }
+  .popup-details {
+    background: #f5f5f5;
+  }
+  .detail-row {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .value {
+    color: #000;
+  }
+}
