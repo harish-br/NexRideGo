@@ -1,4 +1,7 @@
-# React + Vite
+# NexRide-Go
+The driver app for NexRide
+
+## React + Vite Build Info
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
