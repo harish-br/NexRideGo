@@ -1,35 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 const RideRequestPopup = ({ request, onAccept, onReject }) => {
     if (!request) return null;
 
-    return (
-        <div className="popup-overlay">
-            <div className="popup-card">
-                <h2 className="popup-title">New Ride Request 🚨</h2>
+    const getAddress = (loc) => {
+        if (!loc) return 'Unknown Location';
+        if (typeof loc === 'string') return loc;
+        return loc.name || loc.address || 'Unknown Location';
+    };
 
-                <div className="popup-details">
-                    <div className="detail-row">
-                        <span className="label">Pickup:</span>
-                        <span className="value">
-                            {typeof request.pickup === 'object' ? (request.pickup.name || request.pickup.address || JSON.stringify(request.pickup)) : request.pickup}
-                        </span>
-                    </div>
-                    <div className="detail-row">
-                        <span className="label">Drop:</span>
-                        <span className="value">
-                            {typeof request.drop === 'object' ? (request.drop.name || request.drop.address || JSON.stringify(request.drop)) : request.drop}
-                        </span>
+    return (
+        <div className="modal-overlay">
+            <div className="request-card">
+                <div className="req-header">
+                    <h2 className="req-title">NeX Cab</h2>
+                    <div className="req-subtitle" style={{ fontSize: '16px', fontWeight: '500', color: '#111' }}>
+                        ₹240.50 • 2.4 km • Cash
                     </div>
                 </div>
 
-                <div className="popup-actions">
-                    <button className="btn-accept" onClick={() => onAccept(request.tripId || request.id)}>
-                        Agreed / Accept
-                    </button>
-                    <button className="btn-reject" onClick={() => onReject(request.tripId || request.id)}>
+                <div className="req-locations">
+                    <div className="loc-row">
+                        <div className="loc-dot"></div>
+                        <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>PICKUP</div>
+                            <div style={{ fontSize: '15px', fontWeight: '600' }}>{getAddress(request.pickup)}</div>
+                        </div>
+                    </div>
+                    <div className="loc-row">
+                        <div className="loc-dot red"></div>
+                        <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontSize: '11px', color: '#888', fontWeight: '600' }}>DROP</div>
+                            <div style={{ fontSize: '15px', fontWeight: '600' }}>{getAddress(request.drop)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="req-actions">
+                    <button
+                        className="action-btn btn-reject"
+                        onClick={() => onReject(request.tripId || request.id)}
+                    >
                         Reject
+                    </button>
+                    <button
+                        className="action-btn btn-accept"
+                        onClick={() => onAccept(request.tripId || request.id)}
+                    >
+                        Accept Ride
                     </button>
                 </div>
             </div>
@@ -41,8 +60,8 @@ RideRequestPopup.propTypes = {
     request: PropTypes.shape({
         id: PropTypes.string,
         tripId: PropTypes.string,
-        pickup: PropTypes.string,
-        drop: PropTypes.string
+        pickup: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+        drop: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     }),
     onAccept: PropTypes.func.isRequired,
     onReject: PropTypes.func.isRequired

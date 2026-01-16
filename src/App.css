@@ -1,42 +1,647 @@
+/* -------------------------------------------------- */
+/* PRODUCTION-GRADE DRIVER APP STYLES (Namma Yatri Style) */
+/* -------------------------------------------------- */
+
+:root {
+  /* Brand Colors */
+  --primary-blue: #0042DA;
+  /* Namma Yatri / Uber Blueish */
+  --primary-blue-gradient: linear-gradient(135deg, #0052FF 0%, #0042DA 100%);
+  --stop-red: #D93025;
+  --stop-red-gradient: linear-gradient(135deg, #FF453A 0%, #D93025 100%);
+  --success-green: #27AE60;
+
+  /* Neutral Colors */
+  --bg-color: #F8F9FB;
+  --surface-white: #FFFFFF;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+
+  /* Shadows & Radius */
+  --card-radius: 20px;
+  --button-radius: 50px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.16);
+  --shadow-float: 0 10px 25px rgba(0, 66, 218, 0.25);
+
+  /* Font */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body,
+html,
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* -------------------------------------------------- */
+/* LAYOUT CONTAINERS */
+/* -------------------------------------------------- */
+.driver-app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.map-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* -------------------------------------------------- */
+/* TOP PANEL (Namma Yatri Style) */
+/* -------------------------------------------------- */
+.top-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--surface-white);
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  /* Soft shadow */
+  padding: 12px 20px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  /* Safe area */
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Row 1: Status Bar */
+.panel-row-1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.driver-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #E0E0E0;
+  /* Placeholder grey */
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pill.online {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #C8E6C9;
+}
+
+.status-pill.offline {
+  background-color: #F5F5F5;
+  color: #757575;
+  border: 1px solid #E0E0E0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-pill.online .status-dot {
+  background-color: #2E7D32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.status-pill.offline .status-dot {
+  background-color: #9E9E9E;
+}
+
+.btn-notif {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Row 2: Stats */
+.panel-row-2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 4px;
+}
+
+.stat-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-trips {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: #F3F4F6;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.stat-earnings {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.stat-coins {
+  font-size: 14px;
+  font-weight: 700;
+  color: #B45309;
+  /* Gold/Bronze darken */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #FEF3C7;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* -------------------------------------------------- */
+/* MAIN ACTION BUTTON (GO / STOP) */
+/* -------------------------------------------------- */
+.go-button-container {
+  position: absolute;
+  bottom: 110px;
+  /* Fixed height above the idle bottom sheet */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.go-button-container.hidden {
+  transform: translate(-50%, 200px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.go-button {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 4px solid var(--surface-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-float);
+  outline: none;
+  background: var(--primary-blue-gradient);
+  /* Default to GO style */
+}
+
+.go-button:active {
+  transform: scale(0.95);
+}
+
+.go-button.offline {
+  background: var(--primary-blue-gradient);
+}
+
+.go-button.online {
+  background: var(--stop-red-gradient);
+  box-shadow: 0 10px 25px rgba(217, 48, 37, 0.3);
+}
+
+/* -------------------------------------------------- */
+/* SEARCHING STATE UI ADDITIONS */
+/* -------------------------------------------------- */
+.linear-progress-container {
+  width: 100%;
+  height: 4px;
+  background-color: #E5E7EB;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.linear-progress-bar {
+  height: 100%;
+  background-color: var(--primary-blue);
+  width: 30%;
+  border-radius: 2px;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
   }
-  to {
+
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.btn-go-offline {
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-go-offline:active {
+  background-color: #F3F4F6;
+}
+
+/* Loading Spinner on Button */
+.go-button.loading {
+  background: var(--surface-white) !important;
+  border-color: var(--surface-white);
+  cursor: wait;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  100% {
     transform: rotate(360deg);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* -------------------------------------------------- */
+/* BOTTOM SHEET (Draggable / Content) */
+/* -------------------------------------------------- */
+.bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--surface-white);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 15;
+  transition: height 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* States for height */
+.bottom-sheet.idle {
+  height: 90px;
+}
+
+/* Just status bar */
+.bottom-sheet.searching {
+  height: 180px;
+}
+
+/* Searching UI */
+.bottom-sheet.on-trip {
+  height: 260px;
+}
+
+/* Expanded Trip details */
+
+/* Drag Handle */
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #E5E7EB;
+  border-radius: 2px;
+  margin: 12px auto;
+}
+
+/* Content Padding */
+.sheet-content {
+  padding: 0 24px 24px;
+}
+
+/* Status Row (Used in Offline/Online) */
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.status-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.status-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Searching Animation UI */
+.searching-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.searching-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pulse-loader {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid var(--primary-blue);
+  opacity: 0;
+  animation: pulse 1.5s ease-out infinite;
+}
+
+.pulse-core {
+  width: 12px;
+  height: 12px;
+  background: var(--primary-blue);
+  border-radius: 50%;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
   }
 }
 
-.card {
-  padding: 2em;
+/* On Trip UI */
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.read-the-docs {
-  color: #888;
+.trip-badge {
+  background: #E3F2FD;
+  color: #1565C0;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.address-group {
+  margin-bottom: 16px;
+}
+
+.address-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.address-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.trip-actions-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.trip-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-nav {
+  background: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.btn-safety {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: white;
+}
+
+.btn-success {
+  background: var(--success-green);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--stop-red);
+  color: white;
+}
+
+.trip-badge.warning {
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+/* -------------------------------------------------- */
+/* RIDE REQUEST POPUP (Modal) */
+/* -------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  /* Blur effect */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.request-card {
+  background: white;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  animation: slideInUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-align: center;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.req-header {
+  margin-bottom: 24px;
+}
+
+.req-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.req-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.req-locations {
+  text-align: left;
+  background: var(--bg-color);
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.loc-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.loc-row:last-child {
+  margin-bottom: 0;
+}
+
+.loc-dot {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  background: var(--success-green);
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.loc-dot.red {
+  background: var(--stop-red);
+}
+
+.req-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.action-btn:active {
+  transform: scale(0.96);
+}
+
+.btn-accept {
+  background: var(--text-primary);
+  /* Black for high contrast */
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-reject {
+  background: transparent;
+  border: 2px solid #EEE;
+  color: var(--text-secondary);
 }
