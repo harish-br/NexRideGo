@@ -13,81 +13,90 @@ import { signInAnonymously } from "firebase/auth";
 // ------------------------------------------------------------------
 // 1. DRIVER ONLINE LOGIC
 // ------------------------------------------------------------------
-export const goOnline = async (driverId, locationCtx) => {
+export const goOnline = async (requestedId, locationCtx) => {
     if (!db) {
-        console.error("Firestore not initialized");
-        return;
+        console.error("❌ Firestore not initialized");
+        return { success: false, error: "Firestore not initialized" };
     }
 
     try {
-        // Ensure we are authenticated
+        console.log("🚀 [goOnline] Initializing. contextId:", requestedId);
+
+        // 1. Ensure Authentication
         let uid = auth.currentUser?.uid;
         if (!uid) {
-            console.log("Signing in anonymously...");
-            const userCred = await signInAnonymously(auth);
-            uid = userCred.user.uid;
-            console.log("Signed in as:", uid);
-        }
+            console.log("🔐 [goOnline] No session. Signing in anonymously...");
+            try {
+                const userCred = await signInAnonymously(auth);
+                uid = userCred.user.uid;
+                console.log("✅ [goOnline] Auth Success (New ID):", uid);
 
-        // Use passed location or fallback
-        const finalLocation = locationCtx && locationCtx.lat ? locationCtx : { lat: 11.341, lng: 77.71 };
-
-        // Try strict ID first
-        let finalDriverId = driverId;
-
-        try {
-            const driverRef = doc(db, "drivers", driverId);
-            await setDoc(driverRef, {
-                isOnline: true,
-                isBusy: false,      // 🔥 Init as free
-                activeTripId: null, // 🔥 No active trip
-                location: finalLocation, // Use dynamic location
-                lastSeen: serverTimestamp()
-            }, { merge: true });
-            console.log("✅ DRIVER ONLINE (ID: " + driverId + ")");
-        } catch (error) {
-            console.warn(`Failed to go online with ID ${driverId}:`, error.message);
-
-            // Fallback: Use Auth UID
-            if (error.code === 'permission-denied') {
-                console.log(`⚠️ Retrying with Auth UID: ${uid}`);
-                const fallbackRef = doc(db, "drivers", uid);
-                await setDoc(fallbackRef, {
-                    isOnline: true,
-                    isBusy: false,
-                    activeTripId: null,
-                    location: finalLocation,
-                    lastSeen: serverTimestamp()
-                }, { merge: true });
-                finalDriverId = uid;
-                console.log("✅ DRIVER ONLINE (Fallback ID: " + uid + ")");
-            } else {
-                throw error;
+                // 🔥 CRITICAL: Small delay to let Firebase SDK sync auth state with Firestore
+                console.log("⏳ [goOnline] Waiting for auth-firestore sync...");
+                await new Promise(r => setTimeout(r, 800));
+            } catch (authErr) {
+                console.error("❌ [goOnline] Auth Failed:", authErr.code);
+                if (authErr.code === 'auth/operation-not-allowed') {
+                    return { success: false, error: "Anonymous Auth disabled in Firebase Console." };
+                }
+                throw authErr;
             }
+        } else {
+            console.log("👤 [goOnline] Using existing session:", uid);
         }
 
+        // 2. Final Driver ID (Must be UID to pass security rules)
+        if (!uid) {
+            return { success: false, error: "Authentication failed. Session missing." };
+        }
+        const finalDriverId = uid;
+        console.log(`🎯 [goOnline] Writing to drivers/${finalDriverId}. (Auth UID: ${auth.currentUser?.uid}, isAnon: ${auth.currentUser?.isAnonymous})`);
+
+        // 3. Firestore Write
+        const finalLocation = locationCtx && locationCtx.lat ? locationCtx : { lat: 11.341, lng: 77.71 };
+        const driverRef = doc(db, "drivers", finalDriverId);
+
+        console.log(`📝 [goOnline] Updating drivers/${finalDriverId} -> isOnline: true`);
+        await setDoc(driverRef, {
+            isOnline: true,
+            isBusy: false,
+            activeTripId: null,
+            location: finalLocation,
+            lastSeen: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        console.log("✨ [goOnline] SUCCESS");
         return { success: true, id: finalDriverId };
+
     } catch (error) {
-        console.error("Error going online:", error);
-        return { success: false, error: error.message };
+        console.error("💥 [goOnline] ERROR:", error);
+        if (error.code === 'permission-denied') {
+            return {
+                success: false,
+                error: "Firestore Permission Denied. Check Security Rules."
+            };
+        }
+        return { success: false, error: error.message || "Unknown Error" };
     }
 };
 
 
 export const goOffline = async (driverId) => {
-    if (!db) return;
+    if (!db || !driverId) {
+        console.warn("⚠️ [goOffline] Missing db or driverId", { driverId });
+        return;
+    }
     try {
+        console.log(`🔴 [goOffline] Setting isOnline: false for drivers/${driverId}`);
         const driverRef = doc(db, "drivers", driverId);
         await updateDoc(driverRef, {
             isOnline: false,
-            // We usually don't clear isBusy here in case they just went offline mid-trip? 
-            // But for simplicity of "going offline", maybe we assume they are free? 
-            // The prompt says "Driver free? -> YES -> popup". 
-            // Let's just set isOnline false.
+            updatedAt: serverTimestamp()
         });
-        console.log("🔴 DRIVER OFFLINE");
+        console.log("✅ [goOffline] Driver is now Offline in backend");
     } catch (error) {
-        console.error("Error going offline:", error);
+        console.error("❌ [goOffline] ERROR:", error);
     }
 };
 

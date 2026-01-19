@@ -4,7 +4,7 @@ import { goOnline, goOffline, listenForRequests, acceptRide, rejectRide, unlockD
 import RideRequestPopup from '../components/RideRequestPopup';
 import DriverMenu from '../components/DriverMenu';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { db, auth } from '../firebaseConfig';
 
 const API_KEY = 'AIzaSyDlpxJyvl6FFHQGVO3_i-FsTO_-L9GlLO8';
 
@@ -43,7 +43,7 @@ const Directions = ({ origin, destination }) => {
 };
 
 const DriverHome = () => {
-    const [driverId, setDriverId] = useState("driver_123");
+    const [driverId, setDriverId] = useState(null);
     const [isOnline, setIsOnline] = useState(false);
     const [activeRequest, setActiveRequest] = useState(null);
     const [currentTrip, setCurrentTrip] = useState(null);
@@ -102,12 +102,19 @@ const DriverHome = () => {
     }, [isOnline, driverId]);
 
 
-    // 2. Initialize
+    // 2. Auth & Initialization
     useEffect(() => {
-        const initDriver = async () => {
-            setStatusMessage("You're offline");
-        };
-        initDriver();
+        const unsub = auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("🔒 [Auth] User detected:", user.uid);
+                setDriverId(user.uid);
+            } else {
+                console.log("🔒 [Auth] No user session found.");
+            }
+        });
+
+        setStatusMessage("You're offline");
+        return () => unsub();
     }, []);
 
     // 3. Listener for REQUESTS
@@ -154,29 +161,55 @@ const DriverHome = () => {
     const handleGoOnline = async () => {
         setIsLoading(true);
         setStatusMessage("Going Online...");
-        const result = await goOnline(driverId, location);
-        setIsLoading(false);
-        if (result.success) {
-            setDriverId(result.id);
-            setIsOnline(true);
-            setStatusMessage("You're online");
-            playSuccessSound();
-        } else {
-            console.error("Failed to go online:", result.error);
+        console.log("🖱️ 'GO' Clicked. Current Status: Offline. Triggering goOnline...");
+
+        try {
+            const result = await goOnline(driverId, location);
+            if (result.success) {
+                console.log("✨ goOnline Success. New ID:", result.id);
+                setDriverId(result.id);
+                setIsOnline(true);
+                setStatusMessage("You're online");
+                playSuccessSound();
+            } else {
+                console.error("❌ goOnline Failed Result:", result.error);
+                setIsOnline(false);
+                setStatusMessage(`Connection Failed: ${result.error}`);
+            }
+        } catch (err) {
+            console.error("💥 Unexpected error in handleGoOnline:", err);
             setIsOnline(false);
-            setStatusMessage("Connection Failed. Try again.");
+            setStatusMessage("Critical Error. Check Console.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoOffline = async () => {
+        if (!driverId) return;
+        setIsLoading(true);
         setStatusMessage("Going Offline...");
-        setIsOnline(false);
-        setStatusMessage("You're offline");
-        playSuccessSound();
+        console.log("🖱️ 'STOP' Clicked. Triggering goOffline backend...");
+
+        try {
+            await goOffline(driverId);
+            setIsOnline(false);
+            setStatusMessage("You're offline");
+            playSuccessSound();
+        } catch (err) {
+            console.error("❌ Failed to go offline:", err);
+            setStatusMessage("Connect Error");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const toggleAvailability = () => {
-        if (isLoading) return;
+        if (isLoading) {
+            console.log("⏳ Already loading, ignoring click.");
+            return;
+        }
+        console.log(`🔄 Toggling Availability. Current isOnline: ${isOnline}`);
         if (isOnline) handleGoOffline();
         else handleGoOnline();
     };
@@ -295,9 +328,11 @@ const DriverHome = () => {
                     <div className="sheet-content">
                         {sheetState === 'idle' && (
                             <div className="status-row">
-                                <div>
-                                    <div className="status-title">You're Offline</div>
-                                    <div className="status-subtitle">Go online to start receiving trips</div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div className="status-title">{statusMessage}</div>
+                                    <div className="status-subtitle">
+                                        {isLoading ? "Please wait..." : "Go online to start receiving trips"}
+                                    </div>
                                 </div>
                             </div>
                         )}
